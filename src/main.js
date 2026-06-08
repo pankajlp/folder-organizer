@@ -674,13 +674,27 @@ function renderPreviewTable(filterQuery = '', filterCategory = 'all') {
 // Helper: Move directories recursively
 async function moveDirectory(srcDirHandle, destParentHandle, newName) {
   const destDirHandle = await destParentHandle.getDirectoryHandle(newName, { create: true });
+  
+  // 1. Gather child entries into an array to avoid mutating the directory while iterating
+  const entries = [];
   for await (const entry of srcDirHandle.values()) {
-    if (entry.kind === 'file') {
-      await entry.move(destDirHandle);
-    } else if (entry.kind === 'directory') {
-      await moveDirectory(entry, destDirHandle, entry.name);
+    entries.push(entry);
+  }
+  
+  // 2. Relocate entries
+  for (const entry of entries) {
+    try {
+      if (entry.kind === 'file') {
+        await entry.move(destDirHandle);
+      } else if (entry.kind === 'directory') {
+        await moveDirectory(entry, destDirHandle, entry.name);
+      }
+    } catch (err) {
+      console.error(`Error moving child entry '${entry.name}' within '${srcDirHandle.name}':`, err);
     }
   }
+  
+  // 3. Remove the now-empty source folder
   await srcDirHandle.remove({ recursive: true });
 }
 
