@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 width=%22100%22 height=%22100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%2300d4aa%22/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FolderFlow is a client-side, browser-native file and directory organizer. Organize local folders, clean duplicate files, and standardise casing securely and locally." />
+    <title>FolderFlow — Secure Local Directory Organizer</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- Background Glow Elements (NordNeuron Style) -->
+    <div class="glow-bg">
+      <div class="radial-glow"></div>
+      
+      <!-- WAVY SVG LAYER -->
+      <div class="wave-container">
+        <svg viewBox="0 0 900 340" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+          <!-- Wave 1 — deepest, most transparent -->
+          <path class="w1"
+            d="M0,120 C160,80 320,160 480,110 C600,72 720,130 900,85 L900,340 L0,340 Z"
+            fill="#00d4aa" fill-opacity="0.035"/>
+          <!-- Wave 2 -->
+          <path class="w2"
+            d="M0,150 C180,115 360,175 540,135 C680,105 800,150 900,130 L900,340 L0,340 Z"
+            fill="#00d4aa" fill-opacity="0.045"/>
+          <!-- Wave 3 -->
+          <path class="w3"
+            d="M0,175 C200,148 380,195 560,162 C700,138 820,170 900,158 L900,340 L0,340 Z"
+            fill="#00d4aa" fill-opacity="0.055"/>
+          <!-- Wave 4 — shallowest, most visible crest -->
+          <path class="w4"
+            d="M0,195 C220,175 400,208 580,188 C720,172 840,196 900,188 L900,340 L0,340 Z"
+            fill="#00e5c0" fill-opacity="0.075"/>
+          <!-- Glowing crest line on top wave -->
+          <path
+            d="M0,195 C220,175 400,208 580,188 C720,172 840,196 900,188"
+            fill="none"
+            stroke="#00e5c0"
+            stroke-width="1"
+            stroke-opacity="0.25"/>
+          <!-- Solid fill at bottom -->
+          <rect x="0" y="270" width="900" height="70" fill="#00d4aa" fill-opacity="0.03"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+      <!-- Nav Header (NordNeuron Style) -->
+      <nav class="app-header">
+        <div class="nav-logo" id="logo-refresh">
+          <div class="dot-cluster">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+          <span class="logo-word">Folder</span><span class="logo-accent">Flow</span>
+        </div>
+        <div class="badge-area">
+          <span class="secure-badge">✦ Client-Side Engine</span>
+        </div>
+      </nav>
+
+      <!-- Main Panel (Transition Screens) -->
+      <main class="app-main" id="main-container">
+        <!-- Screen 1: Welcome & Landing -->
+        <section id="screen-welcome" class="screen active">
+          <div class="welcome-card">
+            <div class="hero-badge">File Infrastructure</div>
+            
+            <h1 class="welcome-title">
+              Directory organization,<br>
+              <span class="accent">engineered from first principles.</span>
+            </h1>
+            
+            <p class="welcome-subtitle">
+              FolderFlow automatically catalogues your directories, isolates duplicates, and structures file names using cryptographically secure hashing directly in your browser.
+            </p>
+            
+            <!-- Actions -->
+            <div class="hero-actions">
+              <button id="btn-select-folder" class="btn btn-primary">
+                Select Directory
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2.5 7H11.5M8 3.5L11.5 7L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+              <div class="feature-item">
+                <span class="feature-bullet">✦</span>
+                <h3>Secure By Design</h3>
+                <p>Runs strictly client-side. Zero bytes uploaded to the cloud, ensuring absolute file system privacy.</p>
+              </div>
+              <div class="feature-item">
+                <span class="feature-bullet">✦</span>
+                <h3>High-Speed Parsing</h3>
+                <p>Computes parallel SHA-256 binary digests in the browser to identify exact duplicates instantly.</p>
+              </div>
+              <div class="feature-item">
+                <span class="feature-bullet">✦</span>
+                <h3>Granular Control</h3>
+                <p>Configure capitalization filters, custom extension mapping, and targeted target directory routing.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 2: Scanning & Analysis -->
+        <section id="screen-scanning" class="screen">
+          <div class="glass-card text-center">
+            <div class="spinner-container">
+              <div class="spinner"></div>
+              <span class="spinner-emoji">🔍</span>
+            </div>
+            <h2 class="scanning-title">Scanning Directory...</h2>
+            <p class="scanning-subtitle" id="scanning-status">Reading metadata and calculating hashes...</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="scanning-progress" style="width: 0%"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 3: Questionnaire & Customization -->
+        <section id="screen-customize" class="screen">
+          <div class="glass-card">
+            <h2 class="section-title">Configure Pipeline</h2>
+            <p class="section-subtitle">Define the structural rules and filters for your output directory.</p>
+
+            <div class="customize-layout">
+              <!-- Left Column: Form Settings -->
+              <div class="settings-form">
+                <!-- Step 1: File Casing -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span class="step-num">1</span> Capitalization Casing
+                  </label>
+                  <div class="radio-cards">
+                    <label class="radio-card">
+                      <input type="radio" name="file-casing" value="snake_case" checked>
+                      <div class="card-content">
+                        <h4>snake_case</h4>
+                        <span>file_name_example.pdf</span>
+                      </div>
+                    </label>
+                    <label class="radio-card">
+                      <input type="radio" name="file-casing" value="title_case">
+                      <div class="card-content">
+                        <h4>Title Case</h4>
+                        <span>File Name Example.pdf</span>
+                      </div>
+                    </label>
+                    <label class="radio-card">
+                      <input type="radio" name="file-casing" value="camelCase">
+                      <div class="card-content">
+                        <h4>camelCase</h4>
+                        <span>fileNameExample.pdf</span>
+                      </div>
+                    </label>
+                    <label class="radio-card">
+                      <input type="radio" name="file-casing" value="none">
+                      <div class="card-content">
+                        <h4>Keep Original</h4>
+                        <span>No renaming changes</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Step 2: Duplicates isolation -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span class="step-num">2</span> Redundancy Filter
+                  </label>
+                  <div class="option-row">
+                    <label class="switch-container">
+                      <input type="checkbox" id="chk-isolate-duplicates" checked>
+                      <span class="switch-slider"></span>
+                    </label>
+                    <div class="option-description">
+                      <h4>Isolate exact duplicates (Recommended)</h4>
+                      <p>Move identical file copies (matching SHA-256 hashes) to a separate "Duplicates" directory.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 3: Target folders structure -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span class="step-num">3</span> Target Directory Infrastructure
+                  </label>
+                  <div class="checklist-grid" id="checklist-folders">
+                    <!-- Loaded dynamically in main.js -->
+                  </div>
+                </div>
+
+                <!-- Step 4: Custom Extension mapping -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span class="step-num">4</span> Custom Routing Rules
+                  </label>
+                  <div class="custom-extension-builder">
+                    <input type="text" id="input-custom-ext" placeholder="e.g. .mp3" class="input-text">
+                    <select id="select-custom-target" class="input-select">
+                      <!-- Loaded dynamically -->
+                    </select>
+                    <button type="button" id="btn-add-custom-rule" class="btn btn-secondary">Add Rule</button>
+                  </div>
+                  <div class="custom-rules-tags" id="custom-rules-list">
+                    <!-- Dynamic rule tags go here -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Quick Stats -->
+              <div class="stats-panel">
+                <h3>Pipeline Stats</h3>
+                <div class="stat-box">
+                  <span class="stat-label">Source Path</span>
+                  <span class="stat-val font-accent" id="summary-dir-name">-</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Objects Found</span>
+                  <span class="stat-val" id="summary-total-items">0</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Category Allocations</span>
+                  <div class="mini-category-list" id="summary-categories-list">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+                <button id="btn-show-preview" class="btn btn-primary btn-block">
+                  Generate Preview
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="margin-left:4px;">
+                    <path d="M2.5 7H11.5M8 3.5L11.5 7L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 4: Preview & Confirm -->
+        <section id="screen-preview" class="screen">
+          <div class="glass-card flex-col-container">
+            <div class="preview-header">
+              <div>
+                <h2 class="section-title">Execution Map</h2>
+                <p class="section-subtitle">Review planned operations before writing updates to the local file system.</p>
+              </div>
+              <div class="preview-actions">
+                <button id="btn-back-to-customize" class="btn btn-secondary">← Back</button>
+                <button id="btn-execute-moves" class="btn btn-primary">
+                  Execute Organization
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M2.5 7H11.5M8 3.5L11.5 7L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Search & Filter -->
+            <div class="preview-filter-bar">
+              <input type="text" id="preview-search" placeholder="Filter operations..." class="input-text flex-grow">
+              <select id="preview-filter-category" class="input-select">
+                <option value="all">All Categories</option>
+                <!-- Loaded dynamically -->
+              </select>
+            </div>
+
+            <!-- Preview table -->
+            <div class="preview-table-container">
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>Source Directory Object</th>
+                    <th class="col-arrow"></th>
+                    <th>Target Infrastructure Path</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-tbody">
+                  <!-- Loaded dynamically in main.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="preview-footer-stats">
+              <span>Relocating <strong id="preview-stat-moves">0</strong> files</span>
+              <span>•</span>
+              <span>De-duplicating <strong id="preview-stat-duplicates">0</strong> objects</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 5: Execution Progress & Complete -->
+        <section id="screen-executing" class="screen">
+          <div class="glass-card text-center" id="exec-progress-container">
+            <div class="spinner-container">
+              <div class="spinner spinner-cyan"></div>
+              <span class="spinner-emoji">⚙️</span>
+            </div>
+            <h2 class="scanning-title" id="exec-title">Restructuring Directory...</h2>
+            <p class="scanning-subtitle" id="exec-status">Moving files to target directories...</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar progress-bar-cyan" id="exec-progress" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="glass-card text-center screen" id="exec-success-container">
+            <div class="success-icon-wrapper">
+              <div class="success-ring"></div>
+              <div class="success-checkmark">✓</div>
+            </div>
+            <h1 class="welcome-title text-success">Restructuring Complete</h1>
+            <p class="welcome-subtitle">All directory updates have been safely committed to the local file system.</p>
+
+            <div class="final-report-box">
+              <div class="final-report-metric">
+                <span class="num" id="success-stat-moved">0</span>
+                <span class="label">Files Structured</span>
+              </div>
+              <div class="final-report-divider"></div>
+              <div class="final-report-metric">
+                <span class="num" id="success-stat-dups">0</span>
+                <span class="label">Duplicates Isolated</span>
+              </div>
+            </div>
+
+            <button id="btn-reset-app" class="btn btn-primary">RESTOCK PIPELINE</button>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>FolderFlow is built from first principles with client-side sandbox execution. All metadata hashing and directory updates occur strictly inside your secure browser engine. Zero server communication is performed.</p>
+      </footer>
+    </div>
+
+    <!-- Script Entry -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
